@@ -3,6 +3,8 @@ package com.onix.internship.animation.custom
 import android.animation.TimeAnimator
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.View
@@ -34,7 +36,22 @@ class CustomStarBackground @JvmOverloads constructor(
     private val mStars: MutableList<Star> = arrayListOf()
     private val mRnd: Random = Random(SEED)
 
-    private var mTimeAnimator: TimeAnimator = TimeAnimator()
+    private val mTimeAnimator: TimeAnimator by lazy {
+        TimeAnimator()
+    }
+
+    private val handler: TimeAnimator.TimeListener by lazy {
+        object : TimeAnimator.TimeListener {
+            override fun onTimeUpdate(animation: TimeAnimator?, totalTime: Long, deltaTime: Long) {
+                if (!isLaidOut) {
+                    return
+                }
+                updateState(deltaTime)
+                invalidate()
+            }
+        }
+    }
+
     private lateinit var mDrawable: Drawable
 
     private var mBaseSpeed = 0f
@@ -42,32 +59,29 @@ class CustomStarBackground @JvmOverloads constructor(
     private var numOfFrames = 0
     private var mCurrentPlayTime: Long = 0
 
+
     init {
         context.theme.obtainStyledAttributes(
             attrs,
             R.styleable.CustomStarBackground,
             0, 0
         ).apply {
-            try {
-                val image = getDrawable(R.styleable.CustomStarBackground_android_src)
-                    ?: ContextCompat.getDrawable(getContext(), R.drawable.star)
-                if (image != null) {
-                    mDrawable = image
-                }
-                mBaseSize =
-                    getDimension(R.styleable.CustomStarBackground_frame_size, DEFAULT_IMAGE_SIZE)
-                mBaseSpeed = getInteger(
-                    R.styleable.CustomStarBackground_frame_speed,
-                    BASE_SPEED_DP_PER_S
-                ) * resources.displayMetrics.density
-                numOfFrames = getInteger(
-                    R.styleable.CustomStarBackground_current_frames,
-                    DEFAULT_NUM_OF_FRAMES
-                )
-            } finally {
-                recycle()
-                setupAnimator()
+            val image = getDrawable(R.styleable.CustomStarBackground_android_src)
+                ?: ContextCompat.getDrawable(getContext(), R.drawable.star)
+            if (image != null) {
+                mDrawable = image
             }
+            mBaseSize =
+                getDimension(R.styleable.CustomStarBackground_frame_size, DEFAULT_IMAGE_SIZE)
+            mBaseSpeed = getInteger(
+                R.styleable.CustomStarBackground_frame_speed,
+                BASE_SPEED_DP_PER_S
+            ) * resources.displayMetrics.density
+            numOfFrames = getInteger(
+                R.styleable.CustomStarBackground_current_frames,
+                DEFAULT_NUM_OF_FRAMES
+            )
+            recycle()
         }
     }
 
@@ -75,16 +89,6 @@ class CustomStarBackground @JvmOverloads constructor(
         val initWidth = resolveDefaultSize(widthMeasureSpec)
         val initHeight = resolveDefaultSize(heightMeasureSpec)
         setMeasuredDimension(initWidth, initHeight)
-    }
-
-    private fun resolveDefaultSize(measureSpec: Int): Int {
-        return when (MeasureSpec.getMode(measureSpec)) {
-            MeasureSpec.UNSPECIFIED -> context.dpToPx(DEFAULT_SIZE).toInt()
-            MeasureSpec.AT_MOST -> MeasureSpec.getSize(measureSpec)
-            MeasureSpec.EXACTLY -> MeasureSpec.getSize(measureSpec)
-            else -> MeasureSpec.getSize(measureSpec)
-        }
-
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -97,8 +101,6 @@ class CustomStarBackground @JvmOverloads constructor(
     }
 
     override fun onDraw(canvas: Canvas?) {
-        super.onDraw(canvas)
-
         for (star in mStars) {
             val starSize = star.scale * mBaseSize
             if (star.y + starSize < 0 || star.y - starSize > height) {
@@ -120,37 +122,44 @@ class CustomStarBackground @JvmOverloads constructor(
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        mTimeAnimator.start()
+        if (!isInEditMode) {
+            mTimeAnimator.setTimeListener(handler)
+            mTimeAnimator.start()
+        }
     }
 
     override fun onDetachedFromWindow() {
+        if (!isInEditMode) {
+            mTimeAnimator.cancel()
+            mTimeAnimator.removeAllListeners()
+        }
         super.onDetachedFromWindow()
-        mTimeAnimator.cancel()
-        mTimeAnimator.setTimeListener(null)
-        mTimeAnimator.removeAllListeners()
     }
 
-    private fun setupAnimator() {
-        mTimeAnimator.setTimeListener(TimeAnimator.TimeListener { _, _, deltaTime ->
-            if (!isLaidOut) {
-                return@TimeListener
-            }
-            updateState(deltaTime)
-            invalidate()
-        })
+    private fun resolveDefaultSize(measureSpec: Int): Int {
+        return when (MeasureSpec.getMode(measureSpec)) {
+            MeasureSpec.UNSPECIFIED -> context.dpToPx(DEFAULT_SIZE).toInt()
+            MeasureSpec.AT_MOST -> MeasureSpec.getSize(measureSpec)
+            MeasureSpec.EXACTLY -> MeasureSpec.getSize(measureSpec)
+            else -> MeasureSpec.getSize(measureSpec)
+        }
     }
 
     fun pause() {
-        if (mTimeAnimator.isRunning) {
-            mCurrentPlayTime = mTimeAnimator.currentPlayTime
-            mTimeAnimator.pause()
+        if (!isInEditMode) {
+            if (mTimeAnimator.isRunning) {
+                mCurrentPlayTime = mTimeAnimator.currentPlayTime
+                mTimeAnimator.pause()
+            }
         }
     }
 
     fun resume() {
-        if (mTimeAnimator.isPaused) {
-            mTimeAnimator.start()
-            mTimeAnimator.currentPlayTime = mCurrentPlayTime
+        if (!isInEditMode) {
+            if (mTimeAnimator.isPaused) {
+                mTimeAnimator.start()
+                mTimeAnimator.currentPlayTime = mCurrentPlayTime
+            }
         }
     }
 

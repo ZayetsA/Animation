@@ -9,7 +9,7 @@
             type="com.onix.internship.animation.ui.AnimationViewModel" />
     </data>
 
-    <FrameLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/animated_view_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -18,37 +18,53 @@
         <com.onix.internship.animation.custom.CustomStarBackground
             android:id="@+id/animated_view"
             android:layout_width="match_parent"
-            android:layout_height="400dp"
+            android:layout_height="0dp"
             android:layout_gravity="top|center_horizontal"
-            android:background="@color/purple_500"
+            android:background="@color/white"
             android:src="@drawable/peins"
             custom:current_frames="10"
             custom:frame_size="40dp"
-            custom:frame_speed="100" />
+            custom:frame_speed="100"
+            custom:layout_constraintEnd_toEndOf="parent"
+            custom:layout_constraintHeight_percent=".5"
+            custom:layout_constraintStart_toStartOf="parent"
+            custom:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
-            android:id="@+id/buttons"
+        <com.onix.internship.animation.test.BackgroundAnimator
+            android:id="@+id/animatedImages"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center"
-            android:orientation="horizontal"
-            android:padding="16dp">
+            android:scaleType="centerCrop"
+            android:src="@drawable/bg"
+            android:layout_height="0dp"
+            custom:layout_constraintEnd_toEndOf="parent"
+            custom:layout_constraintHeight_percent="0.5"
+            custom:layout_constraintStart_toStartOf="parent"
+            custom:layout_constraintTop_toBottomOf="@id/animated_view" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_pause"
-                style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Pause" />
+        <!--        <LinearLayout-->
+        <!--            android:id="@+id/buttons"-->
+        <!--            custom:layout_constraintTop_toBottomOf="@id/animated_view"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_gravity="bottom|center"-->
+        <!--            android:orientation="horizontal"-->
+        <!--            android:padding="16dp">-->
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_resume"
-                style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Resume" />
-        </LinearLayout>
-    </FrameLayout>
+        <!--            <com.google.android.material.button.MaterialButton-->
+        <!--                android:id="@+id/btn_pause"-->
+        <!--                style="@style/Widget.AppCompat.Button.Colored"-->
+        <!--                android:layout_width="0dp"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:layout_weight="1"-->
+        <!--                android:text="Pause" />-->
+
+        <!--            <com.google.android.material.button.MaterialButton-->
+        <!--                android:id="@+id/btn_resume"-->
+        <!--                style="@style/Widget.AppCompat.Button.Colored"-->
+        <!--                android:layout_width="0dp"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:layout_weight="1"-->
+        <!--                android:text="Resume" />-->
+        <!--        </LinearLayout>-->
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

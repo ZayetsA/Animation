@@ -38,12 +38,12 @@ class AnimationFragment : Fragment() {
 //            }
         }
         customBg = binding.animatedView
-        binding.btnPause.setOnClickListener {
-            customBg.pause()
-        }
-        binding.btnResume.setOnClickListener {
-            customBg.resume()
-        }
+//        binding.btnPause.setOnClickListener {
+//            customBg.pause()
+//        }
+//        binding.btnResume.setOnClickListener {
+//            customBg.resume()
+//        }
     }
 
     override fun onPause() {
